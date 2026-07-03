@@ -2,5 +2,5 @@
 </script>
 
 <template>
-  <h1>mc_wallet</h1>
+  <h1> Here we go!...</h1>
 </template>
