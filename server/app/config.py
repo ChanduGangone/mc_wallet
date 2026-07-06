@@ -15,7 +15,17 @@ class Settings(BaseSettings):
     rate_staleness_hours: int = 36
     exchange_rate_refresh_hour_utc: int = 2
 
+    cors_allowed_origins: str = (
+        "http://localhost:5173,http://127.0.0.1:5173,"
+        "http://localhost:5174,http://127.0.0.1:5174,"
+        "http://localhost:8080,http://127.0.0.1:8080"
+    )
+
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
+
+    @property
+    def cors_allowed_origins_list(self) -> list[str]:
+        return [origin.strip() for origin in self.cors_allowed_origins.split(",") if origin.strip()]
 
 
 settings = Settings()
