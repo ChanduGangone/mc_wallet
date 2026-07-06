@@ -1,0 +1,56 @@
+name: mc_wallet_prod
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: mc_wallet_postgres_prod
+    environment:
+      POSTGRES_USER: mc_wallet
+      POSTGRES_PASSWORD: mc_wallet
+      POSTGRES_DB: mc_wallet
+    volumes:
+      - mc_wallet_pg_prod_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mc_wallet"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./server
+    container_name: mc_wallet_backend
+    environment:
+      DATABASE_URL: postgresql://mc_wallet:mc_wallet@postgres:5432/mc_wallet
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-dev-only-change-me-KFoX99i2XWkwmi_yMMji2XVZpKTtHykR7saVHZuuMtrNenhtI8cTt6Egh2TqJbyO}
+      JWT_ALGORITHM: HS256
+      ACCESS_TOKEN_EXPIRE_MINUTES: "15"
+      REFRESH_TOKEN_EXPIRE_DAYS: "7"
+      UPLOAD_DIR: uploads
+      MAX_UPLOAD_SIZE_BYTES: "2097152"
+      FRANKFURTER_BASE_URL: https://api.frankfurter.dev/v1
+      EXCHANGE_RATE_BASE_CURRENCY: USD
+      RATE_STALENESS_HOURS: "36"
+      EXCHANGE_RATE_REFRESH_HOUR_UTC: "2"
+    ports:
+      - "8000:8000"
+    volumes:
+      - mc_wallet_uploads:/app/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./app
+      args:
+        VITE_API_BASE_URL: http://localhost:8000
+    container_name: mc_wallet_frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+
+volumes:
+  mc_wallet_pg_prod_data:
+  mc_wallet_uploads:

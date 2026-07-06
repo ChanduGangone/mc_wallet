@@ -3,8 +3,9 @@
 A full-stack wallet platform supporting account creation, multi-currency wallet
 management, currency conversion, user-to-user transfers, and transaction history.
 
-🚧 **Status:** Initial scaffold. Project structure is being set up. This README
-will be updated as features land — see the checklist below for current progress.
+🚧 **Status:** Core platform complete — auth, multi-currency wallets, transfers,
+transaction history, and a Vue 3 frontend are all built and tested. See the
+checklist below for current progress.
 
 ## Tech Stack
 
@@ -19,9 +20,38 @@ will be updated as features land — see the checklist below for current progres
 
 - `server/` — FastAPI backend
 - `app/` — Vue 3 frontend
-- `docker-compose.yml` — local Postgres for development
+- `docker-compose.yml` — local Postgres for native (non-containerized) development
+- `server/tests/docker-compose.yml` — dedicated Postgres for the pytest suite
+- `docker-compose.prod.yml` — full stack (Postgres + backend + frontend), all containerized
 
-## Getting Started
+## Run everything with Docker (fastest way to try it)
+
+```bash
+docker compose -f docker-compose.prod.yml up --build -d
+```
+
+This builds and starts all three services:
+
+- **Postgres** — internal only, no host port exposed
+- **Backend** — runs Alembic migrations automatically on startup, then serves on `http://localhost:8000`
+- **Frontend** — production Vite build served via nginx on `http://localhost:8080`
+
+Open `http://localhost:8080` in a browser — signup, wallets, transfers, and history all work end-to-end.
+
+```bash
+docker compose -f docker-compose.prod.yml ps    # check health status
+docker compose -f docker-compose.prod.yml down  # stop and remove containers (data persists in named volumes)
+```
+
+**Note:** this compose file declares its own project name (`mc_wallet_prod`) specifically so it
+never collides with the plain `docker-compose.yml` used for native dev below — running both by
+accident (with the same default project name) previously caused the dev Postgres container to be
+silently recreated. Don't remove the `name:` line at the top of `docker-compose.prod.yml`.
+
+If you're already running the native dev server on port 8000 (see below), stop it first —
+both bind the same host port.
+
+## Getting Started (native, for active development)
 
 ### 1. Database (Postgres, via Docker)
 
@@ -83,9 +113,13 @@ npm run dev
 
 - [x] Project scaffold (server + app)
 - [x] Account creation & authentication
-- [ ] Multi-currency wallet management
-- [ ] Currency conversion
-- [ ] User-to-user transfers
-- [ ] Transaction history
-- [ ] Dockerize (server, app, db, redis)
+- [x] Multi-currency wallet management (credit/debit, idempotency-key protected)
+- [x] Currency conversion (daily exchange-rate sync, staleness fallback)
+- [x] User-to-user transfers (by email, deadlock-safe two-wallet locking)
+- [x] Transaction history (filters + pagination)
+- [x] Test suite (pytest, dedicated Postgres, mocked exchange-rate provider)
+- [x] Frontend (Vue 3 + Vuetify + Vuex)
+- [x] Dockerize (server, app, db — `docker-compose.prod.yml`)
 - [ ] CI/CD pipeline
+- [ ] Public deployment
+- [ ] Structured logging / monitoring / alerting
