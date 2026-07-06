@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+from decimal import Decimal
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -14,6 +15,7 @@ from app.core.security import (
 from app.db.session import get_db
 from app.models.refresh_token import RefreshToken
 from app.models.user import User
+from app.models.wallet import Wallet
 from app.schemas.auth import LoginRequest, LogoutRequest, RefreshRequest, TokenResponse
 from app.schemas.user import SignupOut, UserCreate
 
@@ -52,6 +54,9 @@ def signup(payload: UserCreate, db: Session = Depends(get_db)) -> SignupOut:
         default_currency=payload.default_currency or "USD",
     )
     db.add(user)
+    db.flush()
+
+    db.add(Wallet(user_id=user.id, currency=user.default_currency, balance=Decimal("0")))
     db.commit()
     db.refresh(user)
 

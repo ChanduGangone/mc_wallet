@@ -1,12 +1,9 @@
 import uuid
 from datetime import datetime
-from typing import Annotated
 
-from pydantic import AfterValidator, BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field
 
-from app.core.currencies import validate_currency
-
-Currency = Annotated[str, AfterValidator(validate_currency)]
+from app.schemas.common import Currency
 
 
 class UserCreate(BaseModel):

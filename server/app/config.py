@@ -10,6 +10,11 @@ class Settings(BaseSettings):
     upload_dir: str = "uploads"
     max_upload_size_bytes: int = 2 * 1024 * 1024
 
+    frankfurter_base_url: str = "https://api.frankfurter.dev/v1"
+    exchange_rate_base_currency: str = "USD"
+    rate_staleness_hours: int = 36
+    exchange_rate_refresh_hour_utc: int = 2
+
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
 
