@@ -2,14 +2,14 @@ import uuid
 from datetime import datetime
 from decimal import Decimal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, EmailStr, Field
 
 from app.schemas.common import Currency
 
 
 class TransferRequest(BaseModel):
     from_wallet_id: uuid.UUID
-    to_user_id: uuid.UUID
+    to_email: EmailStr
     to_currency: Currency | None = None
     amount: Decimal = Field(gt=0)
 

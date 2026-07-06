@@ -14,11 +14,11 @@ def _wallet_id(client: TestClient, access_token: str, currency: str) -> str:
     raise AssertionError(f"no {currency} wallet found")
 
 
-def _transfer(client: TestClient, access_token: str, from_wallet: str, to_user_id: str, amount: int) -> tuple[int, str]:
+def _transfer(client: TestClient, access_token: str, from_wallet: str, to_email: str, amount: int) -> tuple[int, str]:
     resp = client.post(
         "/transfers",
         headers={**auth_headers(access_token), "Idempotency-Key": str(uuid.uuid4())},
-        json={"from_wallet_id": from_wallet, "to_user_id": to_user_id, "to_currency": "EUR", "amount": amount},
+        json={"from_wallet_id": from_wallet, "to_email": to_email, "to_currency": "EUR", "amount": amount},
     )
     return resp.status_code, resp.text
 
@@ -52,8 +52,8 @@ def test_concurrent_bidirectional_transfers_conserve_balance_and_never_deadlock(
     n_each_direction = 25
     tasks = []
     for _ in range(n_each_direction):
-        tasks.append((bob["access_token"], bob_wallet, carol["user_id"]))
-        tasks.append((carol["access_token"], carol_wallet, bob["user_id"]))
+        tasks.append((bob["access_token"], bob_wallet, "concurrent_carol@example.com"))
+        tasks.append((carol["access_token"], carol_wallet, "concurrent_bob@example.com"))
 
     results = []
     with ThreadPoolExecutor(max_workers=16) as executor:

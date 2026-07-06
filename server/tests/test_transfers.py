@@ -36,7 +36,7 @@ def test_transfer_same_currency(client: TestClient) -> None:
     resp = client.post(
         "/transfers",
         headers={**auth_headers(sender["access_token"]), "Idempotency-Key": _idem()},
-        json={"from_wallet_id": from_wallet, "to_user_id": receiver["user_id"], "amount": 30},
+        json={"from_wallet_id": from_wallet, "to_email": "xfer1receiver@example.com", "amount": 30},
     )
     assert resp.status_code == 201
     body = resp.json()
@@ -59,7 +59,7 @@ def test_transfer_cross_currency_math_and_snapshot_refs(client: TestClient) -> N
     resp = client.post(
         "/transfers",
         headers={**auth_headers(sender["access_token"]), "Idempotency-Key": _idem()},
-        json={"from_wallet_id": from_wallet, "to_user_id": receiver["user_id"], "amount": 100},
+        json={"from_wallet_id": from_wallet, "to_email": "xfer2receiver@example.com", "amount": 100},
     )
     assert resp.status_code == 201
     body = resp.json()
@@ -79,7 +79,7 @@ def test_transfer_one_side_base_currency(client: TestClient) -> None:
     resp = client.post(
         "/transfers",
         headers={**auth_headers(sender["access_token"]), "Idempotency-Key": _idem()},
-        json={"from_wallet_id": from_wallet, "to_user_id": receiver["user_id"], "amount": 10},
+        json={"from_wallet_id": from_wallet, "to_email": "xfer3receiver@example.com", "amount": 10},
     )
     assert resp.status_code == 201
     body = resp.json()
@@ -96,7 +96,7 @@ def test_transfer_auto_creates_receiver_wallet(client: TestClient) -> None:
     resp = client.post(
         "/transfers",
         headers={**auth_headers(sender["access_token"]), "Idempotency-Key": _idem()},
-        json={"from_wallet_id": from_wallet, "to_user_id": receiver["user_id"], "to_currency": "GBP", "amount": 10},
+        json={"from_wallet_id": from_wallet, "to_email": "xfer4receiver@example.com", "to_currency": "GBP", "amount": 10},
     )
     assert resp.status_code == 201
     receiver_wallets = client.get("/wallets", headers=auth_headers(receiver["access_token"])).json()
@@ -112,7 +112,7 @@ def test_transfer_to_own_different_currency_wallet_allowed(client: TestClient) -
     resp = client.post(
         "/transfers",
         headers={**auth_headers(user["access_token"]), "Idempotency-Key": _idem()},
-        json={"from_wallet_id": from_wallet, "to_user_id": user["user_id"], "to_currency": "EUR", "amount": 10},
+        json={"from_wallet_id": from_wallet, "to_email": "xfer5@example.com", "to_currency": "EUR", "amount": 10},
     )
     assert resp.status_code == 201
 
@@ -125,7 +125,7 @@ def test_transfer_self_same_wallet_rejected(client: TestClient) -> None:
     resp = client.post(
         "/transfers",
         headers={**auth_headers(user["access_token"]), "Idempotency-Key": _idem()},
-        json={"from_wallet_id": from_wallet, "to_user_id": user["user_id"], "to_currency": "USD", "amount": 10},
+        json={"from_wallet_id": from_wallet, "to_email": "xfer6@example.com", "to_currency": "USD", "amount": 10},
     )
     assert resp.status_code == 422
 
@@ -138,7 +138,7 @@ def test_transfer_insufficient_balance_no_write(client: TestClient) -> None:
     resp = client.post(
         "/transfers",
         headers={**auth_headers(sender["access_token"]), "Idempotency-Key": _idem()},
-        json={"from_wallet_id": from_wallet, "to_user_id": receiver["user_id"], "amount": 999999},
+        json={"from_wallet_id": from_wallet, "to_email": "xfer7receiver@example.com", "amount": 999999},
     )
     assert resp.status_code == 422
 
@@ -155,7 +155,7 @@ def test_transfer_from_wallet_not_owned(client: TestClient) -> None:
     resp = client.post(
         "/transfers",
         headers={**auth_headers(attacker["access_token"]), "Idempotency-Key": _idem()},
-        json={"from_wallet_id": owner_wallet, "to_user_id": receiver["user_id"], "amount": 1},
+        json={"from_wallet_id": owner_wallet, "to_email": "xfer8receiver@example.com", "amount": 1},
     )
     assert resp.status_code == 403
 
@@ -167,7 +167,7 @@ def test_transfer_from_wallet_not_found(client: TestClient) -> None:
     resp = client.post(
         "/transfers",
         headers={**auth_headers(sender["access_token"]), "Idempotency-Key": _idem()},
-        json={"from_wallet_id": str(uuid.uuid4()), "to_user_id": receiver["user_id"], "amount": 1},
+        json={"from_wallet_id": str(uuid.uuid4()), "to_email": "xfer9receiver@example.com", "amount": 1},
     )
     assert resp.status_code == 404
 
@@ -179,7 +179,7 @@ def test_transfer_to_user_not_found(client: TestClient) -> None:
     resp = client.post(
         "/transfers",
         headers={**auth_headers(sender["access_token"]), "Idempotency-Key": _idem()},
-        json={"from_wallet_id": from_wallet, "to_user_id": str(uuid.uuid4()), "amount": 1},
+        json={"from_wallet_id": from_wallet, "to_email": "nobody-xfer10@example.com", "amount": 1},
     )
     assert resp.status_code == 404
 
@@ -191,7 +191,7 @@ def test_transfer_idempotent_replay(client: TestClient) -> None:
     _credit(client, sender["access_token"], from_wallet, 100, "USD")
 
     key = _idem()
-    body_json = {"from_wallet_id": from_wallet, "to_user_id": receiver["user_id"], "amount": 20}
+    body_json = {"from_wallet_id": from_wallet, "to_email": "xfer11receiver@example.com", "amount": 20}
 
     first = client.post("/transfers", headers={**auth_headers(sender["access_token"]), "Idempotency-Key": key}, json=body_json)
     second = client.post("/transfers", headers={**auth_headers(sender["access_token"]), "Idempotency-Key": key}, json=body_json)
@@ -212,6 +212,6 @@ def test_transfer_missing_idempotency_key(client: TestClient) -> None:
     resp = client.post(
         "/transfers",
         headers=auth_headers(sender["access_token"]),
-        json={"from_wallet_id": from_wallet, "to_user_id": receiver["user_id"], "amount": 1},
+        json={"from_wallet_id": from_wallet, "to_email": "xfer12receiver@example.com", "amount": 1},
     )
     assert resp.status_code == 422

@@ -85,9 +85,9 @@ def create_transfer(
         response.status_code = status.HTTP_200_OK
         return _transfer_response(existing)
 
-    receiver = db.get(User, body.to_user_id)
+    receiver = db.query(User).filter(User.email == body.to_email).first()
     if receiver is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Recipient user not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No user found with that email")
 
     to_currency = body.to_currency or receiver.default_currency
     to_wallet = _resolve_or_create_wallet(db, receiver.id, to_currency)

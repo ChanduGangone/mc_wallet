@@ -38,7 +38,7 @@ def test_lists_own_credit_and_transfer_history(client: TestClient) -> None:
     client.post(
         "/transfers",
         headers={**auth_headers(sender["access_token"]), "Idempotency-Key": _idem()},
-        json={"from_wallet_id": from_wallet, "to_user_id": receiver["user_id"], "amount": 30},
+        json={"from_wallet_id": from_wallet, "to_email": "txnreceiver@example.com", "amount": 30},
     )
 
     sender_resp = client.get("/transactions", headers=auth_headers(sender["access_token"]))
