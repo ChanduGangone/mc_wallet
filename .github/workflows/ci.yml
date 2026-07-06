@@ -10,6 +10,11 @@ jobs:
   backend-tests:
     runs-on: ubuntu-latest
 
+    env:
+      # Test-only value — conftest.py overrides DATABASE_URL itself, but
+      # JWT_SECRET_KEY has no default and there's no .env file in CI.
+      JWT_SECRET_KEY: ci-test-only-secret-not-used-in-production
+
     services:
       postgres:
         image: postgres:16-alpine
