@@ -8,6 +8,7 @@ from fastapi.staticfiles import StaticFiles
 from app.api.routers.auth import router as auth_router
 from app.api.routers.exchange_rates import router as exchange_rates_router
 from app.api.routers.users import router as users_router
+from app.api.routers.transfers import router as transfers_router
 from app.api.routers.wallets import router as wallets_router
 from app.config import settings
 from app.core.exchange_rates import ensure_todays_snapshot
@@ -30,6 +31,7 @@ app.mount("/uploads", StaticFiles(directory=settings.upload_dir), name="uploads"
 app.include_router(auth_router, prefix="/auth", tags=["auth"])
 app.include_router(users_router, prefix="/users", tags=["users"])
 app.include_router(wallets_router, prefix="/wallets", tags=["wallets"])
+app.include_router(transfers_router, prefix="/transfers", tags=["transfers"])
 app.include_router(exchange_rates_router, prefix="/exchange-rates", tags=["exchange-rates"])
 
 
