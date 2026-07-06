@@ -22,7 +22,7 @@ services:
     container_name: mc_wallet_backend
     environment:
       DATABASE_URL: postgresql://mc_wallet:mc_wallet@postgres:5432/mc_wallet
-      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-dev-only-change-me-KFoX99i2XWkwmi_yMMji2XVZpKTtHykR7saVHZuuMtrNenhtI8cTt6Egh2TqJbyO}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:?Set JWT_SECRET_KEY before running (e.g. export JWT_SECRET_KEY=$(python3 -c 'import secrets; print(secrets.token_urlsafe(48))'))}
       JWT_ALGORITHM: HS256
       ACCESS_TOKEN_EXPIRE_MINUTES: "15"
       REFRESH_TOKEN_EXPIRE_DAYS: "7"

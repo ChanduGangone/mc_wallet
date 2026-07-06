@@ -61,8 +61,12 @@ render.yaml                   Render Blueprint (Postgres + backend + frontend)
 ### Option A — Docker (fastest way to try it)
 
 ```bash
+export JWT_SECRET_KEY=$(python3 -c "import secrets; print(secrets.token_urlsafe(48))")
 docker compose -f docker-compose.prod.yml up --build -d
 ```
+
+`JWT_SECRET_KEY` is a required env var with no default — Compose fails fast with a clear message
+if it's unset, rather than silently falling back to a known value.
 
 Builds and starts all three services:
 - **Postgres** — internal only, no host port exposed
