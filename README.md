@@ -1,5 +1,7 @@
 # Multi-Currency Wallet Platform
 
+[![CI](https://github.com/ChanduGangone/mc_wallet/actions/workflows/ci.yml/badge.svg)](https://github.com/ChanduGangone/mc_wallet/actions/workflows/ci.yml)
+
 A full-stack wallet platform supporting account creation, multi-currency wallet
 management, currency conversion, user-to-user transfers, and transaction history.
 
@@ -120,6 +122,7 @@ npm run dev
 - [x] Test suite (pytest, dedicated Postgres, mocked exchange-rate provider)
 - [x] Frontend (Vue 3 + Vuetify + Vuex)
 - [x] Dockerize (server, app, db — `docker-compose.prod.yml`)
-- [ ] CI/CD pipeline
+- [x] CI (GitHub Actions runs the backend test suite + frontend build on every push/PR)
+- [ ] CD (automated deploy)
 - [ ] Public deployment
 - [ ] Structured logging / monitoring / alerting
