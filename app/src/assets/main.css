@@ -1,0 +1,9 @@
+.v-application {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif !important;
+}
+
+.v-application .text-h4,
+.v-application .text-h5,
+.v-application .text-h6 {
+  letter-spacing: -0.01em;
+}
